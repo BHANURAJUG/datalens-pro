@@ -68,7 +68,7 @@ let pivotState={group:null,value:null,agg:"sum"};
 let anomalyState={col:null,method:"iqr",z:3};
 let dataViewState={page:0,pageSize:50,sortCol:null,sortDir:1,search:""};
 const $=id=>document.getElementById(id);
-const esc=x=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const esc=x=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&","<":"<",">":">",'"':""","'":"'"}[c]));
 const number=x=>{if(x===null||x===undefined||String(x).trim()==="")return NaN;return Number(String(x).replace(/,/g,"").trim())};
 function numericCols(){return headers.filter(h=>{let a=rows.slice(0,Math.min(rows.length,500)).map(r=>r[h]).filter(x=>String(x).trim()!=="");return a.length&&a.filter(x=>Number.isFinite(number(x))).length/a.length>=.8})}
 function catCols(){let ns=numericCols();return headers.filter(h=>!ns.includes(h))}
