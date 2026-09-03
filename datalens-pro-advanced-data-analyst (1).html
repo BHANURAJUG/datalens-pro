@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Privacy-first browser-only non-AI data analytics platform: profiling, cleaning, statistics, correlation, pivot tables, regression, and outlier detection.">
+<title>DataLens Pro — Advanced Non-AI Data Analyst</title>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.3/papaparse.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#f4f7fb;--card:#fff;--ink:#172033;--muted:#667085;--line:#e5e7eb;--accent:#4f46e5;--soft:#eef2ff;--ok:#067647;--okbg:#ecfdf3;--warn:#b54708;--warnbg:#fffaeb;--bad:#b42318;--badbg:#fef3f2}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+header{position:sticky;top:0;z-index:20;background:#101828;color:#fff;padding:13px max(16px,calc((100% - 1180px)/2));display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 2px 15px #0002}.brand{font-weight:850;font-size:19px}.privacy{font-size:12px;background:#063d2a;color:#b7f7d5;border:1px solid #126644;border-radius:99px;padding:5px 9px;white-space:nowrap}
+main{max-width:1180px;margin:auto;padding:20px 14px 55px}.hero{text-align:center;padding:20px 5px 18px}.badge{display:inline-block;background:var(--soft);color:var(--accent);font-size:11px;font-weight:800;padding:5px 9px;border-radius:99px}.hero h1{font-size:clamp(31px,7vw,54px);line-height:1.05;margin:12px 0 10px}.hero p{max-width:760px;margin:auto;color:var(--muted)}
+.drop{max-width:850px;margin:20px auto;padding:30px 16px;text-align:center;background:var(--card);border:2px dashed #98a2b3;border-radius:18px;cursor:pointer}.drop.drag,.drop:hover{border-color:var(--accent);background:#fafaff}.drop strong{display:block;font-size:18px}.drop small{display:block;color:var(--muted);margin-top:5px}input[type=file]{display:none}
+.notice{max-width:850px;margin:15px auto;padding:12px 14px;border-radius:12px;background:var(--okbg);border:1px solid #abefc6;color:var(--ok)}.notice b{display:block}.warning{background:var(--warnbg);border-color:#fedf89;color:var(--warn)}
+#app{display:none}.toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0}.btn{border:1px solid var(--line);background:#fff;color:var(--ink);padding:10px 13px;border-radius:10px;font-weight:750;cursor:pointer}.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}.btn.danger{color:var(--bad);border-color:#fecdca}.btn:active{transform:translateY(1px)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 2px 7px #10182808}.metric .label{font-size:12px;color:var(--muted)}.metric .value{font-size:26px;font-weight:850;margin-top:4px}
+section h2{margin:8px 0 5px}.sub{color:var(--muted);margin:0 0 13px}.table{overflow:auto;border:1px solid var(--line);border-radius:12px;background:#fff}table{border-collapse:collapse;width:100%;min-width:650px}th,td{padding:9px 11px;border-bottom:1px solid var(--line);text-align:left;font-size:13px}th{background:#f8fafc;font-weight:800}tr:last-child td{border:0}
+.rec{display:flex;gap:10px;padding:13px;border:1px solid var(--line);border-radius:12px;background:#fff;margin:8px 0}.rec input{margin-top:5px}.rec b{display:block}.muted{color:var(--muted)}.chartgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.chartbox{height:330px}.trace{background:#0b1220;color:#dbe4f0;border-radius:12px;padding:15px;white-space:pre-wrap;font:12px/1.65 ui-monospace,SFMono-Regular,Menlo,monospace;overflow:auto}.select{padding:9px;border:1px solid var(--line);border-radius:9px;background:#fff;max-width:100%}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:30px 10px}
+@media(max-width:800px){.grid{grid-template-columns:repeat(2,1fr)}.chartgrid{grid-template-columns:1fr}}
+@media(max-width:520px){header{position:relative}.privacy{font-size:10px}.grid{grid-template-columns:1fr 1fr}.metric .value{font-size:21px}.toolbar .btn{flex:1;min-width:105px}.drop{padding:24px 12px}.card{padding:13px}}
+</style>
+</head>
+<body>
+<header><div class="brand">DataLens Pro</div><div class="privacy">🔒 Browser-only processing</div></header>
+<main>
+<div class="hero">
+<span class="badge">NON-AI • DETERMINISTIC STATISTICS • PRIVACY-FIRST</span>
+<h1>Advanced Data Analyst</h1>
+<p>Upload a CSV and get profiling, cleaning, descriptive statistics, a correlation heatmap, pivot tables, rule-based charts with regression trend lines, IQR/Z-score outlier detection, and hypothesis tests — computed entirely with transparent formulas in your browser, with zero AI and zero data leaving the page.</p>
+</div>
+
+<div class="notice"><b>🔐 Your data stays in this page's memory.</b>No dataset upload endpoint, database, login, or cloud-storage code is included. For completely offline operation, download and self-host the two JavaScript libraries used by this page.</div>
+
+<label class="drop" id="drop">
+<strong>📂 Tap here to upload a CSV</strong>
+<small>Mobile friendly • Drag & drop also supported on desktop</small>
+<input id="file" type="file" accept=".csv,text/csv">
+</label>
+
+<div id="app">
+<div class="toolbar">
+<button class="btn primary" onclick="render('overview')">Overview</button>
+<button class="btn" onclick="render('data')">🔢 Data</button>
+<button class="btn" onclick="render('clean')">🧹 Clean</button>
+<button class="btn" onclick="render('stats')">📊 Statistics</button>
+<button class="btn" onclick="render('correlation')">🔗 Correlation</button>
+<button class="btn" onclick="render('charts')">📈 Charts</button>
+<button class="btn" onclick="render('pivot')">🧮 Pivot</button>
+<button class="btn" onclick="render('anomaly')">🚨 Anomalies</button>
+<button class="btn" onclick="render('tests')">🧪 Tests</button>
+<button class="btn" onclick="render('trace')">🔎 Traceability</button>
+<button class="btn" onclick="downloadCSV()">⬇ CSV</button>
+<button class="btn" onclick="downloadJSON()">⬇ JSON</button>
+<button class="btn danger" onclick="wipe()">🗑 Delete</button>
+</div>
+<div id="content"></div>
+</div>
+</main>
+<footer>DataLens Pro • Client-side analytics engine • Deterministic statistics, no generative AI • No external data processing</footer>
+
+<script>
+let rows=[],headers=[],fileName="",actions=[],chartObjs=[],recommendations=[];
+let chartState={hist:null,barCat:null,barNum:null,scatX:null,scatY:null,regression:true};
+let pivotState={group:null,value:null,agg:"sum"};
+let anomalyState={col:null,method:"iqr",z:3};
+let dataViewState={page:0,pageSize:50,sortCol:null,sortDir:1,search:""};
+const $=id=>document.getElementById(id);
+const esc=x=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const number=x=>{if(x===null||x===undefined||String(x).trim()==="")return NaN;return Number(String(x).replace(/,/g,"").trim())};
+function numericCols(){return headers.filter(h=>{let a=rows.slice(0,Math.min(rows.length,500)).map(r=>r[h]).filter(x=>String(x).trim()!=="");return a.length&&a.filter(x=>Number.isFinite(number(x))).length/a.length>=.8})}
+function catCols(){let ns=numericCols();return headers.filter(h=>!ns.includes(h))}
+function arr(h){return rows.map(r=>number(r[h])).filter(Number.isFinite)}
+function mean(a){return a.reduce((s,x)=>s+x,0)/a.length}
+function median(a){a=[...a].sort((x,y)=>x-y);let m=Math.floor(a.length/2);return a.length%2?a[m]:(a[m-1]+a[m])/2}
+function quant(a,q){a=[...a].sort((x,y)=>x-y);if(!a.length)return NaN;let p=(a.length-1)*q,i=Math.floor(p),d=p-i;return a[i+1]===undefined?a[i]:a[i]+d*(a[i+1]-a[i])}
+function sd(a){if(a.length<2)return 0;let m=mean(a);return Math.sqrt(a.reduce((s,x)=>s+(x-m)**2,0)/(a.length-1))}
+function skew(a){let n=a.length,m=mean(a),sdev=Math.sqrt(a.reduce((acc,x)=>acc+(x-m)**2,0)/n);if(!sdev)return 0;return a.reduce((acc,x)=>acc+((x-m)/sdev)**3,0)/n}
+function kurt(a){let n=a.length,m=mean(a),sdev=Math.sqrt(a.reduce((acc,x)=>acc+(x-m)**2,0)/n);if(!sdev)return 0;return a.reduce((acc,x)=>acc+((x-m)/sdev)**4,0)/n-3}
+function fmt(x){return Number.isFinite(x)?x.toLocaleString(undefined,{maximumFractionDigits:4}):"—"}
+function duplicateCount(){let s=new Set(),d=0;rows.forEach(r=>{let k=JSON.stringify(headers.map(h=>r[h]));if(s.has(k))d++;else s.add(k)});return d}
+function pairArr(h1,h2){let a=[],b=[];rows.forEach(r=>{let x=number(r[h1]),y=number(r[h2]);if(Number.isFinite(x)&&Number.isFinite(y)){a.push(x);b.push(y)}});return[a,b]}
+function heatColor(v){if(!Number.isFinite(v))return"#eee";let a=Math.min(1,Math.abs(v)),base=v>=0?[79,70,229]:[220,38,38],mix=c=>Math.round(255+(c-255)*a);return`rgb(${mix(base[0])},${mix(base[1])},${mix(base[2])})`}
+function linreg(x,y){let n=x.length,mx=mean(x),my=mean(y),sxy=0,sxx=0,syy=0;for(let i=0;i<n;i++){sxy+=(x[i]-mx)*(y[i]-my);sxx+=(x[i]-mx)**2;syy+=(y[i]-my)**2}let slope=sxy/sxx,intercept=my-slope*mx,r=sxy/Math.sqrt(sxx*syy),r2=r*r,df=n-2,residSS=Math.max(0,syy*(1-r2)),se=Math.sqrt(residSS/df)/Math.sqrt(sxx),tstat=slope/se;return{slope,intercept,r2,r,n,df,tstat,se}}
+function profile(){
+let miss=headers.reduce((s,h)=>s+rows.filter(r=>String(r[h]??"").trim()==="").length,0),dup=duplicateCount();
+let body=headers.map(h=>{let a=rows.map(r=>r[h]),m=a.filter(x=>String(x??"").trim()==="").length,u=new Set(a.filter(x=>String(x??"").trim()!=="")).size;return `<tr><td>${esc(h)}</td><td>${numericCols().includes(h)?"Numeric":"Text/Other"}</td><td>${fmt(m)}</td><td>${(m/Math.max(1,rows.length)*100).toFixed(2)}%</td><td>${fmt(u)}</td></tr>`}).join("");
+return `<section><h2>Dataset Profile</h2><p class="sub">${esc(fileName)}</p><div class="grid">
+<div class="card metric"><div class="label">Rows</div><div class="value">${fmt(rows.length)}</div></div>
+<div class="card metric"><div class="label">Columns</div><div class="value">${fmt(headers.length)}</div></div>
+<div class="card metric"><div class="label">Missing cells</div><div class="value">${fmt(miss)}</div></div>
+<div class="card metric"><div class="label">Duplicate rows</div><div class="value">${fmt(dup)}</div></div></div>
+<div class="card" style="margin-top:12px"><h3>Column Profile</h3><div class="table"><table><thead><tr><th>Column</th><th>Detected type</th><th>Missing</th><th>Missing %</th><th>Unique</th></tr></thead><tbody>${body}</tbody></table></div></div></section>`;
+}
+function dataView(){
+if(!rows.length)return `<section><h2>Raw Data</h2><div class="notice warning">No data loaded.</div></section>`;
+let filtered=rows.map((r,i)=>({r,i}));
+if(dataViewState.search){let q=dataViewState.search.toLowerCase();filtered=filtered.filter(x=>headers.some(h=>String(x.r[h]).toLowerCase().includes(q)))}
+if(dataViewState.sortCol){let sc=dataViewState.sortCol,dir=dataViewState.sortDir;filtered=[...filtered].sort((a,b)=>{let av=a.r[sc],bv=b.r[sc],ablank=String(av??"").trim()==="",bblank=String(bv??"").trim()==="";if(ablank&&bblank)return 0;if(ablank)return 1;if(bblank)return -1;let an=number(av),bn=number(bv);if(Number.isFinite(an)&&Number.isFinite(bn))return(an-bn)*dir;return String(av).localeCompare(String(bv))*dir})}
+let total=filtered.length,pages=Math.max(1,Math.ceil(total/dataViewState.pageSize));
+dataViewState.page=Math.min(dataViewState.page,pages-1);
+let start=dataViewState.page*dataViewState.pageSize,pageRows=filtered.slice(start,start+dataViewState.pageSize);
+let thead=`<th>#</th>`+headers.map(h=>`<th style="cursor:pointer" onclick="sortData('${esc(h)}')">${esc(h)}${dataViewState.sortCol===h?(dataViewState.sortDir>0?" ▲":" ▼"):""}</th>`).join("");
+let tbody=pageRows.map(x=>`<tr><td>${x.i+1}</td>${headers.map(h=>`<td>${esc(x.r[h])}</td>`).join("")}</tr>`).join("");
+return `<section><h2>Raw Data Explorer</h2><p class="sub">${fmt(total)} row(s) match${dataViewState.search?` "${esc(dataViewState.search)}"`:""}. Showing ${total?start+1:0}–${Math.min(start+dataViewState.pageSize,total)} of ${fmt(total)}.</p>
+<div class="toolbar">
+<input class="select" id="dataSearch" style="flex:1;min-width:180px" placeholder="Search all columns… (press Enter)" value="${esc(dataViewState.search)}" onkeydown="if(event.key==='Enter')searchData(this.value)">
+<button class="btn" onclick="searchData($('dataSearch').value)">Search</button>
+<button class="btn" onclick="searchData('')">Clear</button>
+<button class="btn" onclick="pageData(-1)">◀ Prev</button>
+<button class="btn" onclick="pageData(1)">Next ▶</button>
+<span class="muted" style="align-self:center">Page ${dataViewState.page+1} / ${pages}</span>
+</div>
+<div class="table"><table><thead><tr>${thead}</tr></thead><tbody>${tbody||`<tr><td colspan="${headers.length+1}">No matches.</td></tr>`}</tbody></table></div></section>`;
+}
+function sortData(h){if(dataViewState.sortCol===h)dataViewState.sortDir*=-1;else{dataViewState.sortCol=h;dataViewState.sortDir=1}render("data")}
+function searchData(v){dataViewState.search=v;dataViewState.page=0;render("data")}
+function pageData(d){dataViewState.page=Math.max(0,dataViewState.page+d);render("data")}
+function clean(){
+recommendations=[];
+headers.forEach(h=>{
+let a=rows.map(r=>r[h]),m=a.filter(x=>String(x??"").trim()==="").length;
+if(m)recommendations.push({h,problem:`${m} missing values`,action:numericCols().includes(h)?"Fill with median":"Fill with mode",type:"missing"});
+if(a.some(x=>typeof x==="string"&&x!==x.trim()))recommendations.push({h,problem:"Leading/trailing spaces",action:"Trim whitespace",type:"strip"});
+if(new Set(a.map(x=>String(x))).size<=1)recommendations.push({h,problem:"Constant/empty column",action:"Review only — not auto-deleted",type:"constant"});
+});
+let d=duplicateCount();if(d)recommendations.push({h:"*",problem:`${d} duplicate rows`,action:"Remove exact duplicate rows",type:"duplicates"});
+let list=recommendations.map((r,i)=>`<div class="rec"><input type="checkbox" id="rec${i}" checked><div><b>${esc(r.h)} — ${esc(r.problem)}</b><span class="muted">${esc(r.action)}</span></div></div>`).join("");
+return `<section><h2>Cleaning Recommendations</h2><p class="sub">Nothing changes until you select Apply. Constant columns are intentionally never removed automatically.</p>${list||'<div class="notice"><b>Looks good.</b>No basic automatic recommendations were found.</div>'}${list?'<button class="btn primary" onclick="applyCleaning()">Apply Selected</button>':''}</section>`;
+}
+function applyCleaning(){
+recommendations.forEach((r,i)=>{if(!$("rec"+i).checked)return;
+if(r.type==="missing"){let a=rows.map(x=>x[r.h]).filter(x=>String(x??"").trim()!=="");let v;if(numericCols().includes(r.h)){v=median(a.map(number))}else{let counts={};a.forEach(x=>counts[x]=(counts[x]||0)+1);v=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0]?.[0]??""}rows.forEach(x=>{if(String(x[r.h]??"").trim()==="")x[r.h]=v});actions.push(`${r.h}: missing values filled with ${numericCols().includes(r.h)?"median":"mode"}`)}
+if(r.type==="strip"){rows.forEach(x=>{if(typeof x[r.h]==="string")x[r.h]=x[r.h].trim()});actions.push(`${r.h}: whitespace trimmed`)}
+if(r.type==="duplicates"){let seen=new Set();rows=rows.filter(x=>{let k=JSON.stringify(headers.map(h=>x[h]));if(seen.has(k))return false;seen.add(k);return true});actions.push("Exact duplicate rows removed")}
+});alert("Selected cleaning actions applied locally.");render("clean")}
+function stats(){
+let ns=numericCols();if(!ns.length)return `<section><h2>Statistics</h2><div class="notice warning">No numeric columns detected.</div></section>`;
+let body=ns.map(h=>{let a=arr(h),q1=quant(a,.25),q3=quant(a,.75);return `<tr><td>${esc(h)}</td><td>${a.length}</td><td>${fmt(mean(a))}</td><td>${fmt(median(a))}</td><td>${fmt(sd(a))}</td><td>${fmt(q1)}</td><td>${fmt(q3)}</td><td>${fmt(q3-q1)}</td><td>${fmt(Math.min(...a))}</td><td>${fmt(Math.max(...a))}</td><td>${fmt(skew(a))}</td><td>${fmt(kurt(a))}</td></tr>`}).join("");
+return `<section><h2>Descriptive Statistics</h2><div class="table"><table><thead><tr><th>Column</th><th>N</th><th>Mean</th><th>Median</th><th>Std Dev</th><th>Q1</th><th>Q3</th><th>IQR</th><th>Min</th><th>Max</th><th>Skew</th><th>Exc. Kurtosis</th></tr></thead><tbody>${body}</tbody></table></div></section>`;
+}
+function correlation(){
+let ns=numericCols();
+if(ns.length<2)return `<section><h2>Correlation</h2><div class="notice warning">At least two numeric columns are required.</div></section>`;
+let matrix=ns.map(h1=>ns.map(h2=>{if(h1===h2)return 1;let[a,b]=pairArr(h1,h2);return a.length>1?(sd(a)&&sd(b)?pear(a,b):NaN):NaN}));
+let thead=`<th></th>`+ns.map(h=>`<th>${esc(h)}</th>`).join("");
+let tbody=ns.map((h1,i)=>`<tr><th style="text-align:left;background:#f8fafc">${esc(h1)}</th>${ns.map((h2,j)=>{let v=matrix[i][j];return `<td style="background:${heatColor(v)};text-align:center;font-weight:700;color:${Math.abs(v)>.6?'#fff':'#172033'}">${Number.isFinite(v)?v.toFixed(2):"—"}</td>`}).join("")}</tr>`).join("");
+return `<section><h2>Correlation Matrix</h2><p class="sub">Pairwise Pearson correlation coefficients, computed on pairwise-complete observations for each column pair.</p><div class="table"><table><thead><tr>${thead}</tr></thead><tbody>${tbody}</tbody></table></div></section>`;
+}
+function chartsView(){
+let ns=numericCols(),cs=catCols();
+if(!ns.length)return `<section><h2>Charts</h2><div class="notice warning">No numeric columns detected.</div></section>`;
+chartState.hist=chartState.hist&&ns.includes(chartState.hist)?chartState.hist:ns[0];
+chartState.barNum=chartState.barNum&&ns.includes(chartState.barNum)?chartState.barNum:ns[0];
+chartState.barCat=chartState.barCat&&cs.includes(chartState.barCat)?chartState.barCat:(cs[0]||null);
+chartState.scatX=chartState.scatX&&ns.includes(chartState.scatX)?chartState.scatX:ns[0];
+chartState.scatY=chartState.scatY&&ns.includes(chartState.scatY)?chartState.scatY:(ns[1]||ns[0]);
+return `<section><h2>Rule-Based Visualizations</h2><p class="sub">Chart types follow deterministic column-type rules; you choose which columns to plot. No AI is used to pick trends.</p>
+<div class="card"><div class="toolbar" style="margin:0">
+<label>Histogram: <select class="select" id="histCol" onchange="setCharts()">${ns.map(h=>`<option ${h===chartState.hist?"selected":""}>${esc(h)}</option>`).join("")}</select></label>
+${cs.length?`<label>Bar category: <select class="select" id="barCatCol" onchange="setCharts()">${cs.map(h=>`<option ${h===chartState.barCat?"selected":""}>${esc(h)}</option>`).join("")}</select></label>`:""}
+<label>Bar value: <select class="select" id="barNumCol" onchange="setCharts()">${ns.map(h=>`<option ${h===chartState.barNum?"selected":""}>${esc(h)}</option>`).join("")}</select></label>
+<label>Scatter X: <select class="select" id="scatXCol" onchange="setCharts()">${ns.map(h=>`<option ${h===chartState.scatX?"selected":""}>${esc(h)}</option>`).join("")}</select></label>
+<label>Scatter Y: <select class="select" id="scatYCol" onchange="setCharts()">${ns.map(h=>`<option ${h===chartState.scatY?"selected":""}>${esc(h)}</option>`).join("")}</select></label>
+<label><input type="checkbox" id="regToggle" ${chartState.regression?"checked":""} onchange="setCharts()"> Show trend line</label>
+</div></div>
+<div class="chartgrid"><div class="card"><div class="chartbox"><canvas id="hist"></canvas></div></div><div class="card"><div class="chartbox"><canvas id="bar"></canvas></div></div><div class="card"><div class="chartbox"><canvas id="scatter"></canvas></div></div></div>
+<div class="card" id="regBox" style="margin-top:12px"></div></section>`;
+}
+function setCharts(){chartState.hist=$("histCol").value;if($("barCatCol"))chartState.barCat=$("barCatCol").value;chartState.barNum=$("barNumCol").value;chartState.scatX=$("scatXCol").value;chartState.scatY=$("scatYCol").value;chartState.regression=$("regToggle").checked;makeCharts()}
+function makeCharts(){
+chartObjs.forEach(x=>x.destroy());chartObjs=[];let ns=numericCols();if(!ns.length)return;
+let h=chartState.hist||ns[0],a=arr(h),bins=12,min=Math.min(...a),max=Math.max(...a),step=(max-min||1)/bins,c=Array(bins).fill(0);a.forEach(x=>c[Math.min(bins-1,Math.floor((x-min)/step))]++);
+if($("hist"))chartObjs.push(new Chart($("hist"),{type:"bar",data:{labels:c.map((_,i)=>fmt(min+i*step)),datasets:[{label:h,data:c}]},options:{responsive:true,maintainAspectRatio:false,plugins:{title:{display:true,text:"Histogram — "+h}}}}));
+if(chartState.barCat&&chartState.barNum&&$("bar")){let cCol=chartState.barCat,n=chartState.barNum,m={};rows.forEach(r=>{if(r[cCol]!==""&&Number.isFinite(number(r[n])))m[r[cCol]]=(m[r[cCol]]||0)+number(r[n])});let top=Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,12);chartObjs.push(new Chart($("bar"),{type:"bar",data:{labels:top.map(x=>x[0]),datasets:[{label:n,data:top.map(x=>x[1])}]},options:{responsive:true,maintainAspectRatio:false,plugins:{title:{display:true,text:n+" by "+cCol}}}}))}
+if(chartState.scatX&&chartState.scatY&&$("scatter")){
+let x=chartState.scatX,y=chartState.scatY,d=rows.map(r=>({x:number(r[x]),y:number(r[y])})).filter(p=>Number.isFinite(p.x)&&Number.isFinite(p.y));
+let datasets=[{label:x+" vs "+y,data:d,showLine:false,backgroundColor:"#4f46e5"}],regHtml="";
+if(chartState.regression&&d.length>2&&x!==y){
+let reg=linreg(d.map(p=>p.x),d.map(p=>p.y)),xs=d.map(p=>p.x),xmin=Math.min(...xs),xmax=Math.max(...xs);
+datasets.push({type:"line",label:"Trend line",data:[{x:xmin,y:reg.slope*xmin+reg.intercept},{x:xmax,y:reg.slope*xmax+reg.intercept}],borderColor:"#dc2626",borderWidth:2,pointRadius:0,fill:false});
+regHtml=`<div class="notice"><b>Linear fit: ${esc(y)} = ${fmt(reg.slope)} × ${esc(x)} + ${fmt(reg.intercept)}</b>R² = ${fmt(reg.r2)} · n = ${reg.n} · t(${reg.df}) = ${fmt(reg.tstat)}</div>`;
+}
+chartObjs.push(new Chart($("scatter"),{type:"scatter",data:{datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{title:{display:true,text:"Scatter Plot: "+x+" vs "+y}}}}));
+if($("regBox"))$("regBox").innerHTML=regHtml;
+}
+}
+function pivot(){
+let ns=numericCols(),cs=catCols();
+if(!cs.length||!ns.length)return `<section><h2>Pivot Table</h2><div class="notice warning">Needs at least one categorical column and one numeric column.</div></section>`;
+pivotState.group=pivotState.group&&cs.includes(pivotState.group)?pivotState.group:cs[0];
+pivotState.value=pivotState.value&&ns.includes(pivotState.value)?pivotState.value:ns[0];
+let g=pivotState.group,v=pivotState.value,agg=pivotState.agg,groups={};
+rows.forEach(r=>{let key=r[g];if(key===undefined||String(key).trim()==="")return;let x=number(r[v]);(groups[key]=groups[key]||[]).push(x)});
+let entries=Object.entries(groups).map(([k,vals])=>{let f=vals.filter(Number.isFinite),val;if(agg==="count")val=vals.length;else if(!f.length)val=0;else if(agg==="sum")val=f.reduce((s,x)=>s+x,0);else if(agg==="mean")val=mean(f);else if(agg==="min")val=Math.min(...f);else val=Math.max(...f);return[k,val,vals.length]}).sort((a,b)=>b[1]-a[1]);
+let rowsHtml=entries.map(([k,val,n])=>`<tr><td>${esc(k)}</td><td>${fmt(val)}</td><td>${n}</td></tr>`).join("");
+return `<section><h2>Pivot Table</h2><p class="sub">Group by a categorical column and aggregate a numeric column.</p>
+<div class="toolbar" style="margin:8px 0 12px">
+<label>Group by: <select class="select" id="pivGroup" onchange="setPivot()">${cs.map(h=>`<option ${h===g?"selected":""}>${esc(h)}</option>`).join("")}</select></label>
+<label>Value: <select class="select" id="pivValue" onchange="setPivot()">${ns.map(h=>`<option ${h===v?"selected":""}>${esc(h)}</option>`).join("")}</select></label>
+<label>Aggregate: <select class="select" id="pivAgg" onchange="setPivot()"><option value="sum" ${agg==="sum"?"selected":""}>Sum</option><option value="mean" ${agg==="mean"?"selected":""}>Mean</option><option value="count" ${agg==="count"?"selected":""}>Count</option><option value="min" ${agg==="min"?"selected":""}>Min</option><option value="max" ${agg==="max"?"selected":""}>Max</option></select></label>
+</div>
+<div class="chartgrid" style="grid-template-columns:1.1fr .9fr">
+<div class="card"><div class="chartbox"><canvas id="pivotChart"></canvas></div></div>
+<div class="table"><table><thead><tr><th>${esc(g)}</th><th>${esc(agg)} of ${esc(v)}</th><th>Rows</th></tr></thead><tbody>${rowsHtml||'<tr><td colspan="3">No groups.</td></tr>'}</tbody></table></div>
+</div></section>`;
+}
+function setPivot(){pivotState.group=$("pivGroup").value;pivotState.value=$("pivValue").value;pivotState.agg=$("pivAgg").value;render("pivot")}
+function makePivotChart(){
+chartObjs.forEach(x=>x.destroy());chartObjs=[];
+let g=pivotState.group,v=pivotState.value,agg=pivotState.agg;
+if(!g||!v||!$("pivotChart"))return;
+let groups={};rows.forEach(r=>{let key=r[g];if(key===undefined||String(key).trim()==="")return;let x=number(r[v]);(groups[key]=groups[key]||[]).push(x)});
+let entries=Object.entries(groups).map(([k,vals])=>{let f=vals.filter(Number.isFinite),val;if(agg==="count")val=vals.length;else if(!f.length)val=0;else if(agg==="sum")val=f.reduce((s,x)=>s+x,0);else if(agg==="mean")val=mean(f);else if(agg==="min")val=Math.min(...f);else val=Math.max(...f);return[k,val]}).sort((a,b)=>b[1]-a[1]).slice(0,15);
+chartObjs.push(new Chart($("pivotChart"),{type:"bar",data:{labels:entries.map(x=>x[0]),datasets:[{label:agg+" of "+v,data:entries.map(x=>x[1])}]},options:{responsive:true,maintainAspectRatio:false,plugins:{title:{display:true,text:agg+" of "+v+" by "+g}}}}));
+}
+function anomaly(){
+let ns=numericCols();if(!ns.length)return `<section><h2>Anomalies</h2><div class="notice warning">No numeric columns detected.</div></section>`;
+anomalyState.col=anomalyState.col&&ns.includes(anomalyState.col)?anomalyState.col:ns[0];
+let h=anomalyState.col,a=arr(h),lo,hi,ruleText;
+if(anomalyState.method==="iqr"){let q1=quant(a,.25),q3=quant(a,.75),iqr=q3-q1;lo=q1-1.5*iqr;hi=q3+1.5*iqr;ruleText="Values below Q1 − 1.5×IQR or above Q3 + 1.5×IQR."}
+else{let m=mean(a),s=sd(a);lo=m-anomalyState.z*s;hi=m+anomalyState.z*s;ruleText=`Values more than ${anomalyState.z} standard deviations from the mean.`}
+let bad=rows.map((r,i)=>({i,v:number(r[h])})).filter(x=>Number.isFinite(x.v)&&(x.v<lo||x.v>hi));
+return `<section><h2>Outlier Detection</h2><p class="sub">${ruleText}</p>
+<div class="toolbar" style="margin:8px 0 12px">
+<label>Column: <select class="select" id="anomCol" onchange="setAnomaly()">${ns.map(x=>`<option ${x===h?"selected":""}>${esc(x)}</option>`).join("")}</select></label>
+<label>Method: <select class="select" id="anomMethod" onchange="setAnomaly()"><option value="iqr" ${anomalyState.method==="iqr"?"selected":""}>IQR (1.5×)</option><option value="zscore" ${anomalyState.method==="zscore"?"selected":""}>Z-score</option></select></label>
+${anomalyState.method==="zscore"?`<label>Threshold: <select class="select" id="anomZ" onchange="setAnomaly()"><option value="2" ${anomalyState.z===2?"selected":""}>2σ</option><option value="2.5" ${anomalyState.z===2.5?"selected":""}>2.5σ</option><option value="3" ${anomalyState.z===3?"selected":""}>3σ</option></select></label>`:""}
+</div>
+<div class="grid"><div class="card metric"><div class="label">Column</div><div class="value">${esc(h)}</div></div><div class="card metric"><div class="label">Outliers</div><div class="value">${bad.length}</div></div><div class="card metric"><div class="label">Lower bound</div><div class="value">${fmt(lo)}</div></div><div class="card metric"><div class="label">Upper bound</div><div class="value">${fmt(hi)}</div></div></div>
+<div class="card" style="margin-top:12px"><div class="table"><table><thead><tr><th>Source row</th><th>${esc(h)}</th></tr></thead><tbody>${bad.slice(0,250).map(x=>`<tr><td>${x.i+1}</td><td>${fmt(x.v)}</td></tr>`).join("")}</tbody></table></div></div></section>`;
+}
+function setAnomaly(){anomalyState.col=$("anomCol").value;anomalyState.method=$("anomMethod").value;let zSel=$("anomZ");if(zSel)anomalyState.z=Number(zSel.value);render("anomaly")}
+function tests(){
+return `<section><h2>Statistical Tests</h2><p class="sub">Pearson/Spearman correlation, chi-square independence, simple linear regression, and a Jarque–Bera normality test — all computed with transparent closed-form formulas.</p>
+<div class="card"><label>Test <select class="select" id="testType" onchange="testForm()"><option>Pearson Correlation</option><option>Spearman Correlation</option><option>Chi-Square</option><option>Simple Linear Regression</option><option>Normality (Jarque–Bera)</option></select></label><div id="testform" style="margin-top:12px"></div><div id="testout" style="margin-top:12px"></div></div></section>`;
+}
+function testForm(){
+let type=$("testType").value,ns=numericCols(),cs=catCols();
+if(type==="Normality (Jarque–Bera)"){
+if(!ns.length)return $("testform").innerHTML="<div class='notice warning'>At least one numeric column is required.</div>";
+$("testform").innerHTML=`<select class="select" id="tx">${ns.map(x=>`<option>${esc(x)}</option>`).join("")}</select> <button class="btn primary" onclick="runTest()">Run Test</button>`;
+return;
+}
+let a,b;if(type==="Chi-Square"){a=cs;b=cs}else{a=ns;b=ns}
+if(a.length<2)return $("testform").innerHTML="<div class='notice warning'>At least two suitable columns are required.</div>";
+$("testform").innerHTML=`<select class="select" id="tx">${a.map(x=>`<option>${esc(x)}</option>`).join("")}</select> <select class="select" id="ty">${b.map(x=>`<option>${esc(x)}</option>`).join("")}</select> <button class="btn primary" onclick="runTest()">Run Test</button>`;
+}
+function rank(a){let s=a.map((v,i)=>[v,i]).sort((x,y)=>x[0]-y[0]),r=Array(a.length);for(let i=0;i<s.length;){let j=i;while(j+1<s.length&&s[j+1][0]===s[i][0])j++;let v=(i+j)/2+1;for(let k=i;k<=j;k++)r[s[k][1]]=v;i=j+1}return r}
+function pear(x,y){let mx=mean(x),my=mean(y),sx=sd(x),sy=sd(y);return x.reduce((s,v,i)=>s+(v-mx)*(y[i]-my),0)/((x.length-1)*sx*sy)}
+function runTest(){
+let type=$("testType").value;
+if(type==="Normality (Jarque–Bera)"){
+let x=$("tx").value,a=arr(x),s=skew(a),k=kurt(a),jb=a.length/6*(s*s+(k*k)/4);
+$("testout").innerHTML=`<div class="notice"><b>Jarque–Bera Normality Test — ${esc(x)}</b>Skewness: <strong>${fmt(s)}</strong><br>Excess kurtosis: <strong>${fmt(k)}</strong><br>JB statistic: <strong>${fmt(jb)}</strong> (reference distribution: χ², df = 2)<br>Interpretation: ${jb>5.991?"Reject normality at α = 0.05 (JB exceeds the 5.991 critical value).":"Fail to reject normality at α = 0.05 (JB is below the 5.991 critical value)."}</div>`;
+return;
+}
+if(type==="Simple Linear Regression"){
+let x=$("tx").value,y=$("ty").value,d=rows.map(r=>[number(r[x]),number(r[y])]).filter(z=>Number.isFinite(z[0])&&Number.isFinite(z[1]));
+if(d.length<3||x===y)return $("testout").innerHTML="<div class='notice warning'>Choose two different numeric columns with at least 3 paired observations.</div>";
+let reg=linreg(d.map(z=>z[0]),d.map(z=>z[1]));
+$("testout").innerHTML=`<div class="notice"><b>Simple Linear Regression: ${esc(y)} ~ ${esc(x)}</b>${esc(y)} = ${fmt(reg.slope)} × ${esc(x)} + ${fmt(reg.intercept)}<br>R² = <strong>${fmt(reg.r2)}</strong> · Pearson r = ${fmt(reg.r)}<br>t(${reg.df}) = ${fmt(reg.tstat)}, standard error of slope = ${fmt(reg.se)}<br>Pairs used: ${d.length}</div>`;
+return;
+}
+let x=$("tx").value,y=$("ty").value;
+if(type.includes("Correlation")){let d=rows.map(r=>[number(r[x]),number(r[y])]).filter(z=>Number.isFinite(z[0])&&Number.isFinite(z[1]));let X=d.map(z=>z[0]),Y=d.map(z=>z[1]),r=type.startsWith("Spearman")?pear(rank(X),rank(Y)):pear(X,Y);$("testout").innerHTML=`<div class="notice"><b>${esc(type)}</b>Coefficient: <strong>${r.toFixed(6)}</strong><br>Pairs used: ${d.length}<br>Interpretation: ${Math.abs(r)>=.7?"strong":Math.abs(r)>=.4?"moderate":"weak"} linear/monotonic association.</div>`}
+else{let table={};rows.forEach(r=>{let A=r[x],B=r[y];if(A!==""&&B!==""){table[A]??={};table[A][B]=(table[A][B]||0)+1}});let R=Object.keys(table),C=[...new Set(rows.map(r=>r[y]).filter(v=>v!==""))];let total=R.reduce((s,A)=>s+Object.values(table[A]).reduce((a,b)=>a+b,0),0),chi=0;R.forEach(A=>{let row=Object.values(table[A]).reduce((a,b)=>a+b,0);C.forEach(B=>{let col=R.reduce((s,Q)=>s+(table[Q][B]||0),0),obs=table[A][B]||0,exp=row*col/total;if(exp)chi+=(obs-exp)**2/exp})});let df=(R.length-1)*(C.length-1);$("testout").innerHTML=`<div class="notice"><b>Chi-Square Independence</b>χ² = <strong>${chi.toFixed(6)}</strong><br>Degrees of freedom: ${df}<br>Expected frequencies are calculated from row/column marginal totals.</div>`}
+}
+function trace(){
+let ns=numericCols(),h=ns[0];if(!h)return `<section><h2>Traceability</h2><div class="notice warning">Upload a dataset with a numeric column.</div></section>`;let a=arr(h),m=mean(a),med=median(a),q1=quant(a,.25),q3=quant(a,.75);
+return `<section><h2>Calculation Traceability</h2><p class="sub">Example formulas for the first detected numeric column: <b>${esc(h)}</b>.</p><div class="trace">SOURCE COLUMN: ${h}
+
+N = count(non-null numeric observations)
+N = ${a.length}
+
+MEAN
+= Σx / N
+= ${fmt(m)}
+
+MEDIAN
+= 50th percentile
+= ${fmt(med)}
+
+SAMPLE STANDARD DEVIATION
+= √[Σ(x − x̄)² / (N − 1)]
+= ${fmt(sd(a))}
+
+Q1 = ${fmt(q1)}
+Q3 = ${fmt(q3)}
+IQR = Q3 − Q1
+IQR = ${fmt(q3-q1)}
+
+PROCESSING
+Browser memory only
+No generative AI
+No external analysis API</div>${actions.length?`<div class="card" style="margin-top:12px"><h3>Applied cleaning actions</h3><ul>${actions.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>`:""}</section>`;
+}
+function render(view){
+let c;
+if(view==="overview")c=profile();
+else if(view==="data")c=dataView();
+else if(view==="clean")c=clean();
+else if(view==="stats")c=stats();
+else if(view==="correlation")c=correlation();
+else if(view==="charts")c=chartsView();
+else if(view==="pivot")c=pivot();
+else if(view==="anomaly")c=anomaly();
+else if(view==="tests")c=tests();
+else c=trace();
+$("content").innerHTML=c;$("app").style.display="block";
+if(view==="charts")makeCharts();
+if(view==="pivot")makePivotChart();
+if(view==="tests")testForm();
+window.scrollTo({top:$("app").offsetTop-10,behavior:"smooth"})
+}
+function parse(file){fileName=file.name;Papa.parse(file,{header:true,skipEmptyLines:true,complete:r=>{headers=r.meta.fields||[];rows=r.data.map(x=>{let o={};headers.forEach(h=>o[h]=x[h]??"");return o});actions=[];chartState={hist:null,barCat:null,barNum:null,scatX:null,scatY:null,regression:true};pivotState={group:null,value:null,agg:"sum"};anomalyState={col:null,method:"iqr",z:3};dataViewState={page:0,pageSize:50,sortCol:null,sortDir:1,search:""};render("overview")},error:e=>alert("CSV error: "+e.message)})}
+$("file").addEventListener("change",e=>{if(e.target.files[0])parse(e.target.files[0])});
+$("drop").addEventListener("dragover",e=>{e.preventDefault();$("drop").classList.add("drag")});
+$("drop").addEventListener("dragleave",()=>$("drop").classList.remove("drag"));
+$("drop").addEventListener("drop",e=>{e.preventDefault();$("drop").classList.remove("drag");if(e.dataTransfer.files[0])parse(e.dataTransfer.files[0])});
+function downloadCSV(){if(!rows.length)return;let b=new Blob([Papa.unparse(rows)],{type:"text/csv;charset=utf-8"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="datalens_cleaned.csv";a.click();URL.revokeObjectURL(a.href)}
+function downloadJSON(){if(!rows.length)return;let b=new Blob([JSON.stringify(rows,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="datalens_cleaned.json";a.click();URL.revokeObjectURL(a.href)}
+function wipe(){chartObjs.forEach(c=>c.destroy());rows=[];headers=[];actions=[];recommendations=[];fileName="";chartState={hist:null,barCat:null,barNum:null,scatX:null,scatY:null,regression:true};pivotState={group:null,value:null,agg:"sum"};anomalyState={col:null,method:"iqr",z:3};dataViewState={page:0,pageSize:50,sortCol:null,sortDir:1,search:""};$("content").innerHTML="";$("app").style.display="none";$("file").value="";alert("All uploaded data and analysis state were deleted from browser memory.")}
+</script>
+</body>
+</html>
